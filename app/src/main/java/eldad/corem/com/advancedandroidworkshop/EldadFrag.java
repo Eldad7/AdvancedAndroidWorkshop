@@ -1,5 +1,6 @@
 package eldad.corem.com.advancedandroidworkshop;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -7,6 +8,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import org.greenrobot.eventbus.EventBus;
@@ -28,8 +30,7 @@ public class EldadFrag extends android.support.v4.app.Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private static String text = "";
-    private EditText et;
+    private TextView tv;
 
     public EldadFrag() {
         // Required empty public constructor
@@ -44,12 +45,11 @@ public class EldadFrag extends android.support.v4.app.Fragment {
      * @return A new instance of fragment SomeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static EldadFrag newInstance(String param1, String param2, String _text) {
+    public static EldadFrag newInstance(String param1, String param2) {
         EldadFrag fragment = new EldadFrag();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
-        text = _text;
         // The arguments supplied here will be retained across fragment destroy and creation
         fragment.setArguments(args);
         return fragment;
@@ -69,26 +69,22 @@ public class EldadFrag extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.frag_eldad, container, false);
-        TextView tv = (TextView) view.findViewById(R.id.textView);
-        tv.setText(mParam1 + " " + mParam2);
-        final EditText editText = (EditText) view.findViewById(R.id.text);
-        editText.setText(text);
-        editText.addTextChangedListener(new TextWatcher() {
+        tv = (TextView) view.findViewById(R.id.textView);
+        Button button = (Button) view.findViewById(R.id.button2);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                EventBus.getDefault().post(new MyEvent(s.toString()));
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), LoginActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("uid", tv.getText().toString());
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
         return view;
+    }
+
+    public void setUserId(String text){
+        tv.setText(text);
     }
 }

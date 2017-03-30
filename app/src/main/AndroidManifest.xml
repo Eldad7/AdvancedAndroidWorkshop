@@ -12,10 +12,14 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".LoginActivity"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="c34a9f8b223f88cb692b222ca09bea7227aa254d" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
