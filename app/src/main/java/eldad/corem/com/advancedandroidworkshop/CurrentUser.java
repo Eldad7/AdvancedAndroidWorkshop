@@ -1,6 +1,9 @@
 package eldad.corem.com.advancedandroidworkshop;
 
+import android.support.annotation.Keep;
+
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.Exclude;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
@@ -12,10 +15,14 @@ public class CurrentUser {
     public static final String DB_REF = "users";
 
     private FirebaseUser userData = null;
+    private String token;
+    private boolean anonymous;
 
     public CurrentUser() {
     }
 
+    public void setAnonymous (boolean isAnonymous){ this.anonymous = isAnonymous;}
+    public void setToken(String _token){this.token = _token;}
     public String getToken() {
         return FirebaseInstanceId.getInstance().getToken();
     }
@@ -27,6 +34,8 @@ public class CurrentUser {
         return true;
     }
 
+
+    @Keep // the "Keep" annotation is useless without corresponding ProGuard rule to keep it. (todo)
     public String getUserName() {
         if (userData != null) {
             return userData.getDisplayName();
@@ -34,6 +43,7 @@ public class CurrentUser {
         return "-";
     }
 
+    @Keep
     public String getEmail() {
         if (userData != null) {
             return userData.getEmail();
@@ -41,6 +51,7 @@ public class CurrentUser {
         return "-";
     }
 
+    @Exclude
     public FirebaseUser getUserData() {
         return userData;
     }
@@ -48,6 +59,4 @@ public class CurrentUser {
     public void setUserData(FirebaseUser userData) {
         this.userData = userData;
     }
-
-
 }

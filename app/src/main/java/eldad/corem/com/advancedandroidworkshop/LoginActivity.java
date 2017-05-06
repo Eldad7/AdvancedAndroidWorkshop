@@ -22,8 +22,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import io.fabric.sdk.android.Fabric;
 
-import static com.google.android.gms.internal.zzs.TAG;
-
 /**
  * Created by The Gate Keeper on 3/28/2017.
  */
@@ -33,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private String mCustomToken;
     private EditText Email, Password;
+    private static String TAG = "Advanced Mobile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,15 +95,33 @@ public class LoginActivity extends AppCompatActivity {
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCustomToken", task.getException());
-                            EventBus.getDefault().post(new MyEvent("Authentication Failed"));
+                            EventBus.getDefault().post(new MyEvent("Authentication Failed", 3));
                             finish();
                         }
                         String email = Email.getText().toString();
                         String password = Password.getText().toString();
                         AuthCredential credential = EmailAuthProvider.getCredential(email,password);
                         Toast.makeText(LoginActivity.this, "Logging in", Toast.LENGTH_SHORT).show();
-                        EventBus.getDefault().post(credential);
-                        finish();
+                        //EventBus.getDefault().post(credential);
+                        //finish();
+                    }
+                });
+        String email = Email.getText().toString();
+        String password = Password.getText().toString();
+        Toast.makeText(LoginActivity.this, "Linking account", Toast.LENGTH_SHORT).show();
+        AuthCredential credential = EmailAuthProvider.getCredential(email,password);
+        mAuth.getCurrentUser().linkWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            EventBus.getDefault().post("Authentication Failed");
+                        }
                     }
                 });
     }

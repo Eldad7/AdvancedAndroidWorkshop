@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="eldad.corem.com.advancedandroidworkshop">
 
     <application
@@ -15,8 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"/>
         <meta-data
+            tools:replace="android:value"
             android:name="io.fabric.ApiKey"
             android:value="c34a9f8b223f88cb692b222ca09bea7227aa254d" />
     </application>
