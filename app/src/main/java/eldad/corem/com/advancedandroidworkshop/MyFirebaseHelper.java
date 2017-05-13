@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,6 +13,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by amir on 3/8/17.
@@ -21,6 +27,7 @@ class MyFirebaseHelper {
 
     private static final String TAG = MyFirebaseHelper.class.getSimpleName();
     static String lastUid = null;
+    private static long messagesInChat = 0;
 
     /**
      * caching the most up to date user info
@@ -58,7 +65,7 @@ class MyFirebaseHelper {
                 FirebaseUser userData = currentUser.getUserData();
                 if (userData != null) {
                     // now that we have the uid, we can check if the db already have this user
-                    wireUsersDb(userData.getUid());
+                    /*wireUsersDb(userData.getUid());*/
                 } else {
                     Log.w(TAG, "got null userData");
                     // if currentUser is not null, it means he's just logged off
@@ -81,11 +88,17 @@ class MyFirebaseHelper {
     public static void saveBoardMessageInFirebase(String ref, String s) {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRef = database.getReference(ref);
-
         // Write a message to the database
-        BoardMessage b = new BoardMessage();
-        b.setMessage(s);
-        myRef.setValue(b);
+        Calendar c = Calendar.getInstance();
+        Date currentTime = c.getTime();
+        DateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        Message message = new Message();
+        message.setSender(currentUser.getUserName());
+        message.setContent(s);
+        message.setCreationDate(sdf.format(currentTime));
+        sdf = new SimpleDateFormat("HH:mm");
+        message.setTimestamp(sdf.format(currentTime));
+        myRef.child("Message" + ++messagesInChat).setValue(message);
     }
 
     public static void saveInFirebase(CurrentUser ref) {
@@ -155,7 +168,7 @@ class MyFirebaseHelper {
                 // This method is called once with the initial userOnServer and again
                 // whenever data at this location is updated.
 
-                Log.d(TAG, "onDataChange(uid) got " + dataSnapshot);
+                Log.d(TAG, "wireUsers db -> onDataChange(uid) got " + dataSnapshot);
 
                 CurrentUser userOnServer = dataSnapshot.getValue(CurrentUser.class);
                 CurrentUser userInClient = getCurrentUser();
@@ -168,12 +181,12 @@ class MyFirebaseHelper {
                         // user data is excluded from DB
                         if (userDataClientSide.getUid() != uid) {
                             // uid has changed: different user, or user logged in or out
-                            Log.d(TAG, "onDataChange(uid) uid changed!");
+                            Log.d(TAG, "wireUsersDb -> onDataChange(uid) uid changed!");
                             saveInFirebase(userInClient);
                         }
                     }
 
-                    Log.i(TAG, "onDataChange: found user on the server (or it has changed): postSticky user: " + userOnServer.getUserData());
+                    Log.i(TAG, "wireUsersDb -> onDataChange: found user on the server (or it has changed): postSticky user: " + userOnServer.getUserData());
                     EventBus.getDefault().postSticky(userInClient);
                 } else {
                     // ==> null userOnServer
@@ -202,30 +215,81 @@ class MyFirebaseHelper {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference myRef = database.getReference(ref);
 
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Log.d(TAG, "onDataChange(" + ref + ") got " + dataSnapshot);
-                for (DataSnapshot users: dataSnapshot.getChildren()) {
-                    User user = new User();
-                    user.setToken((String) users.child("token").getValue());
-                    user.setAnonymous((boolean) users.child("anonymous").getValue());
-                    if (users.hasChild("email"))
-                        user.setEmail((String) users.child("email").getValue());
-                    if (users.hasChild("userName"))
-                        user.setUserName((String) users.child("userName").getValue());
-                    usersHandler.addUser(user);
-                    EventBus.getDefault().post(new MyEvent("New user logged in", 3));
-                }
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "initUsers -> onDataChange(" + ref + ") got " + dataSnapshot);
+                User user = new User();
+                user.setToken((String) dataSnapshot.child("token").getValue());
+                user.setAnonymous((boolean) dataSnapshot.child("anonymous").getValue());
+                if (dataSnapshot.hasChild("email"))
+                    user.setEmail((String) dataSnapshot.child("email").getValue());
+                if (dataSnapshot.hasChild("userName"))
+                    user.setUserName((String) dataSnapshot.child("userName").getValue());
+                usersHandler.addUser(user);
+                EventBus.getDefault().post(new MyEvent("New user logged in", 3));
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public static void initChat(final String ref, final Class callbackType, final ChatHandler chatHandler) {
+
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference myRef = database.getReference(ref);
+
+        // Read from the database
+        myRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "initChat -> onChildAdded(" + ref + ") got " + dataSnapshot);
+                messagesInChat++;
+                Message message = new Message();
+                message.setSender((String) dataSnapshot.child("sender").getValue());
+                message.setContent((String) dataSnapshot.child("content").getValue());
+                message.setCreationDate((String) dataSnapshot.child("creationDate").getValue());
+                message.setTimestamp((String) dataSnapshot.child("timestamp").getValue());
+                chatHandler.addMessage(message);
+                EventBus.getDefault().post(new MyEvent("Message", 1));
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 

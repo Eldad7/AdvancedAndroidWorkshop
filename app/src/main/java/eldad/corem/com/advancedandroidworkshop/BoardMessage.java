@@ -16,10 +16,19 @@ public class BoardMessage {
     private String message;
     private long timestamp;
     private Long creationDate;
+    private String sender;
     private static String TAG = "BoardMessage";
 
     public java.util.Map<String, String> getCreationDate() {
         return ServerValue.TIMESTAMP;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
     /*@Override
@@ -54,6 +63,10 @@ public class BoardMessage {
 
     public String getMessage() {
         return message;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public void setMessage(String message) {

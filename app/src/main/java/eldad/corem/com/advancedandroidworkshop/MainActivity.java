@@ -23,44 +23,37 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().add(R.id.layout, fragment, "frag1").commitNow();
     }
 
-/*    @Subscribe(threadMode = ThreadMode.MAIN)
+   @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MyEvent event) {
         Fragment fragment;
         switch (event.getCommand()) {
-            case 1:
-                EldadFrag frag1 = EldadFrag.newInstance("input", "Name");
-                fragment = getSupportFragmentManager().findFragmentByTag("inpFrag");
+            case 4:
+                ChatFragment frag1 = ChatFragment.newInstance();
+                fragment = getSupportFragmentManager().findFragmentByTag("ChatFragment");
                 if (fragment == null) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.layout, frag1, "inputFragment").commitNow();
-                    Toast.makeText(this, event.getMessage(), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "input fragment already presence!", Toast.LENGTH_SHORT).show();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.layout, frag1, "ChatFragment").commitNow();
                 }
                 break;
-            case 2:
-                EldadFrag frag2 = EldadFrag.newInstance("Login","text");
-                fragment = getSupportFragmentManager().findFragmentByTag("textFrag");
+            case 5:
+                MainFragment frag2 = MainFragment.newInstance();
+                fragment = getSupportFragmentManager().findFragmentByTag("MainFragment");
                 if (fragment == null) {
-
-*//*
-                    AuthenticationExampleFragment frag2 = AuthenticationExampleFragment.newInstance();
-*//*
                     getSupportFragmentManager().beginTransaction().replace(R.id.layout, frag2, "loginFragment").commitNow();
                     Toast.makeText(this, event.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
-    }*/
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-        //EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
-        //EventBus.getDefault().unregister(this);
+        EventBus.getDefault().unregister(this);
         super.onStop();
     }
 }

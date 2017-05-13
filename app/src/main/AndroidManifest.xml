@@ -16,6 +16,30 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".ExampleAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/example_appwidget_info" />
+        </receiver>
+
+        <activity
+            android:name="eldad.corem.com.advancedandroidworkshop.ExampleWidgetConfig"
+            android:excludeFromRecents="true"
+            android:icon="@mipmap/ic_launcher"
+            android:noHistory="true"
+            android:taskAffinity="ac.shenkar.workshoptwo.ExampleWidgetConfig"
+            android:theme="@style/Theme.ConfigWidgetTheme"
+            tools:ignore="ExportedActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <meta-data
             tools:replace="android:value"
             android:name="io.fabric.ApiKey"

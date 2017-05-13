@@ -7,4 +7,9 @@
     <string name="anonymous_users" formatted="false">There are %s signed-in users and %s anonymous guests</string>
     <string name="display_name" formatted="false">Logged in as %s</string>
     <string name="logged_in">and %s anonymous guests</string>
+    <string name="cancel">cancel</string>
+    <string name="ok">ok</string>
+    <string name="send">Send</string>
+    <string name="hint">Type your message here</string>
+    <string name="start_chatting">Start chatting!</string>
 </resources>

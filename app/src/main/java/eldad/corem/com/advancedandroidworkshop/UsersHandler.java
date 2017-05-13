@@ -18,6 +18,16 @@ public class UsersHandler {
     }
 
     private int loggedAnonymousUsers, loggedInUsers;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    private boolean active=false;
     private ArrayList<User> users, anonymousUsers;
 
     public UsersHandler(){
